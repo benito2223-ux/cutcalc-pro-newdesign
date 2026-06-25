@@ -36,7 +36,12 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 input[type=number]{-moz-appearance:textfield}
 
 /* ═══ APP SHELL ═══ */
-#app{position:fixed;inset:0;display:flex;flex-direction:column;overflow:hidden}
+#app{position:fixed;top:0;left:0;right:0;height:100%;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+
+/* Compact result when keyboard is open */
+body.kb-open .res-val{font-size:36px!important;letter-spacing:-1px!important}
+body.kb-open .res-fixed{padding:6px 14px!important}
+body.kb-open .res-formula{display:none!important}
 
 /* ═══════════════════════════════
    HEADER — SPK Logo + controls
@@ -1298,7 +1303,7 @@ function row(icoType,lbl,sym,fid,u,mode){
     '</div>'+
     '<div class="inp-row-bot">'+
     '<button class="inc-btn" onclick="incField(\''+fid+'\',-1)" tabindex="-1">&minus;</button>'+
-    '<input class="inp-field" type="number" inputmode="decimal" pattern="[0-9]*" id="'+fid+'" oninput="doCalc()" enterkeyhint="done" autocomplete="off">'+
+    '<input class="inp-field" type="text" inputmode="decimal" pattern="[0-9.]*" id="'+fid+'" oninput="doCalc()" enterkeyhint="done" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">'+
     '<button class="inc-btn" onclick="incField(\''+fid+'\',1)" tabindex="-1">+</button>'+
     '</div>'+
     '</div>';
@@ -1911,8 +1916,41 @@ function shareResult(op){
   };
 })();
 
-// ══ KEYBOARD NON-BLOQUANT — auto-scroll champ focalisé ══
+// ══ KEYBOARD — resize app + scroll champ focalisé ══
 (function(){
+  var appEl=document.getElementById('app');
+  var bodyEl=document.body;
+  var baseH=window.innerHeight;
+
+  function applyVV(){
+    var vv=window.visualViewport;
+    var h=vv.height;
+    appEl.style.height=h+'px';
+    // détecte ouverture/fermeture clavier (seuil 150px)
+    if(h<baseH-150){
+      bodyEl.classList.add('kb-open');
+    } else {
+      bodyEl.classList.remove('kb-open');
+      appEl.style.height='';
+    }
+    // scroll champ actif dans la zone visible
+    var focused=document.activeElement;
+    if(!focused||!focused.classList.contains('inp-field'))return;
+    var scrollEl=focused.closest('.calc-scroll');
+    if(!scrollEl)return;
+    setTimeout(function(){
+      var rowEl=focused.closest('.inp-row')||focused;
+      var rect=rowEl.getBoundingClientRect();
+      if(rect.bottom>h-8){scrollEl.scrollTop+=rect.bottom-h+32;}
+    },80);
+  }
+
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',applyVV);
+    window.visualViewport.addEventListener('scroll',applyVV);
+  }
+
+  // scroll immédiat à la prise de focus
   document.addEventListener('focusin',function(e){
     if(!e.target.classList||!e.target.classList.contains('inp-field'))return;
     var scrollEl=e.target.closest('.calc-scroll');
@@ -1920,25 +1958,19 @@ function shareResult(op){
     setTimeout(function(){
       var rowEl=e.target.closest('.inp-row');
       if(!rowEl)return;
-      var top=0,el=rowEl;
-      while(el&&el!==scrollEl){top+=el.offsetTop;el=el.offsetParent;}
-      scrollEl.scrollTop=Math.max(0,top-12);
-    },360);
+      rowEl.scrollIntoView({block:'nearest',behavior:'smooth'});
+    },380);
   },true);
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize',function(){
-      var focused=document.activeElement;
-      if(!focused||!focused.classList.contains('inp-field'))return;
-      var scrollEl=focused.closest('.calc-scroll');
-      if(!scrollEl)return;
-      setTimeout(function(){
-        var rowEl=focused.closest('.inp-row')||focused;
-        var rect=rowEl.getBoundingClientRect();
-        var vvH=window.visualViewport.height;
-        if(rect.bottom>vvH-8){scrollEl.scrollTop+=rect.bottom-vvH+24;}
-      },80);
-    });
-  }
+
+  document.addEventListener('focusout',function(e){
+    if(!e.target.classList||!e.target.classList.contains('inp-field'))return;
+    setTimeout(function(){
+      if(!document.activeElement||!document.activeElement.classList.contains('inp-field')){
+        bodyEl.classList.remove('kb-open');
+        appEl.style.height='';
+      }
+    },200);
+  },true);
 })();
 </script>
 <!-- Toast -->

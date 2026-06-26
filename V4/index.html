@@ -952,12 +952,12 @@ function doCalc(){
   switch(id){
     case 'T_Tc1': sv(g('fi_L')/(g('fi_f')*g('fi_n'))*60);break;
     case 'T_Tc2': sv(Math.PI*g('fi_Dm')*g('fi_L')/(1000*g('fi_vc')*g('fi_f'))*60);break;
-    case 'T_Tc3':{var N=g('fi_N')||1;sv(Math.PI*(Math.pow(g('fi_D1'),2)-Math.pow(g('fi_D2'),2))*N/(4*g('fi_f')*g('fi_n')*1000)*60);break;}
+    case 'T_Tc3':{var N=g('fi_N')||1;sv(N*(g('fi_D1')-g('fi_D2'))/(2*g('fi_f')*g('fi_n'))*60);break;}
     case 'T_Tc4':{var N=g('fi_N')||1;sv(Math.PI*(Math.pow(g('fi_D1'),2)-Math.pow(g('fi_D2'),2))*N/(4*g('fi_f')*g('fi_vc')*1000)*60);break;}
     case 'T_Tc5': sv((g('fi_D1')-g('fi_D2'))/(2*g('fi_f')*g('fi_n'))*60);break;
     case 'T_Tc6': sv(Math.PI*(Math.pow(g('fi_D1'),2)-Math.pow(g('fi_D2'),2))/(4*g('fi_f')*g('fi_vc')*1000)*60);break;
     case 'T_Tc7': sv(g('fi_D1')/(2*g('fi_f')*g('fi_n'))*60);break;
-    case 'T_Tc8': sv(Math.PI*g('fi_D1')*(g('fi_D1')-g('fi_D3'))/(2*g('fi_f')*g('fi_vc')*1000)*60);break;
+    case 'T_Tc8': sv(Math.PI*(Math.pow(g('fi_D1'),2)-Math.pow(g('fi_D3'),2))/(4*g('fi_f')*g('fi_vc')*1000)*60);break;
     case 'T_Tc9': sv(g('fi_T1')-Math.PI*Math.pow(g('fi_D3'),2)/(4*g('fi_f')*g('fi_nmax')*1000)*60);break;
     case 'T_vc':  sv(Math.PI*g('fi_Dm')*g('fi_n')/1000);break;
     case 'T_n':   sv(1000*g('fi_vc')/(Math.PI*g('fi_Dm')));break;
